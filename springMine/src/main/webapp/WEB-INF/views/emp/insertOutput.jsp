@@ -7,6 +7,7 @@
 <title>Insert title here</title>
 </head>
 <body>
-
+<h3>사원등록결과</h3>
+${emp.firstName} ${emp.lastName}<br> 
 </body>
 </html>

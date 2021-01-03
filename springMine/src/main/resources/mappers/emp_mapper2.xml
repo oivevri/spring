@@ -4,51 +4,40 @@
 
 <mapper namespace="co.company.spring.dao.EmpMapper">
 
-<!-- 수정 update -->
-	<update id="updateEmp">
-		UPDATE EMPLOYEES
-    	<set>
-      		<if test="firstName != null">FIRST_NAME = #{firstName},</if>
-      		<if test="lastName != null">LAST_NAME = #{lastName},</if>
-      		<if test="email != null">EMAIL = #{email},</if>
-      		<if test="jobId != null">JOB_ID = #{jobId}</if>
-    	</set>
-  		WHERE employee_id = #{employeeId}
-	</update>
 
-<!-- 단건조회  -->
+	<!-- 단건조회 -->
 	<select id="getEmp" parameterType="emp" resultType="emp">
-		SELECT  
-		        first_name,
-				last_name,
-				email,
-				hire_date,
-				job_id
+		SELECT
+		first_name,
+		last_name,
+		email,
+		hire_date,
+		job_id
 		FROM employees
 		WHERE employee_id = #{employeeId}
 	</select>
 
-<!-- 부서별 사원 수 부서번호, 부서명, 사원수 -->
+	<!-- 부서별 사원 수 부서번호, 부서명, 사원수 -->
 	<select id="getStatDept" resultType="map">
-	<!--  부서번호, 부서명, 사원수를 vo에 담기 귀찮으면 map을 사용할 수 있음 -->
+		<!--  부서번호, 부서명, 사원수를 vo에 담기 귀찮으면 map을 사용할 수 있음 -->
 		SELECT E.DEPARTMENT_ID "deptId",
-				D.DEPARTMENT_NAME "deptName",
-				COUNT(*) "cnt"
-<!-- 			COUNT(*) OVER() as CNT -->
+		D.DEPARTMENT_NAME "deptName",
+		COUNT(*) "cnt"
+		<!-- COUNT(*) OVER() as CNT -->
 		FROM EMPLOYEES E, DEPARTMENTS D
 		WHERE E.DEPARTMENT_ID = D.DEPARTMENT_ID
 		GROUP BY E.DEPARTMENT_ID,
-				 D.DEPARTMENT_NAME
+		D.DEPARTMENT_NAME
 	</select>
 
-<!-- 전체 레코드 건수 : 주소 검색할때 결과랑, 결과목록 페이징할때 맞추려고!
-그래서 전체 조회랑 where 조건이 같아야함.. 그대로 복사해서 여기 넣어주면 됨 -->	
+	<!-- 전체 레코드 건수 : 주소 검색할때 결과랑, 결과목록 페이징할때 맞추려고! 그래서 전체 조회랑 where 조건이 같아야함.. 
+		그대로 복사해서 여기 넣어주면 됨 -->
 	<select id="getCount" resultType="int">
 		SELECT COUNT(*) FROM EMPLOYEES
 		<where>
 			<if test="firstName != null and firstName != ''">
-			<!-- 검색어를 넘겨주면, 그 검색어가 들어간 이름을 찾는것 
-			대/소문자 구분없이 쓰려면 upper. 이때 칼럼 명과 파라미터 둘 다에 설정해줘야함 -->
+				<!-- 검색어를 넘겨주면, 그 검색어가 들어간 이름을 찾는것 대/소문자 구분없이 쓰려면 upper. 이때 칼럼 명과 파라미터 
+					둘 다에 설정해줘야함 -->
 				upper(FIRST_NAME) like '%' || upper(#{firstName}) || '%'
 			</if>
 			<if test="departmentId != null and departmentId != ''">
@@ -60,21 +49,21 @@
 			<if test="maxSalary != null">
 				<![CDATA[ and SALARY <= #{maxSalary} ]]>
 			</if>
-			<!-- if test="minSalary != null and maxSalary != null">
-				and SALARY BETWEEN #{minSalary} AND #{maxSalary}
-			</if -->
+			<!-- if test="minSalary != null and maxSalary != null"> and SALARY BETWEEN 
+				#{minSalary} AND #{maxSalary} </if -->
 		</where>
 	</select>
-	
-<!-- 전체조회  -->	
+
+	<!-- 전체조회 -->
 	<select id="getEmpList" resultType="emp">
-	<!-- emp( = Emp VO)에 있는 필드명이 그대로 아래의 test에 들어가야한다-->
-		SELECT rownum id, e.* 
-		  FROM employees e
+		<!-- emp( = Emp VO)에 있는 필드명이 그대로 아래의 test에 들어가야한다 -->
+		SELECT rownum id, e.*
+		FROM employees e
 		<where>
+
 			<if test="firstName != null and firstName != ''">
-			<!-- 검색어를 넘겨주면, 그 검색어가 들어간 이름을 찾는것 
-			대/소문자 구분없이 쓰려면 upper. 이때 칼럼 명과 파라미터 둘 다에 설정해줘야함 -->
+				<!-- 검색어를 넘겨주면, 그 검색어가 들어간 이름을 찾는것 대/소문자 구분없이 쓰려면 upper. 이때 칼럼 명과 파라미터 
+					둘 다에 설정해줘야함 -->
 				upper(FIRST_NAME) like '%' || upper(#{firstName}) || '%'
 			</if>
 			<if test="departmentId != null and departmentId != ''">
@@ -86,64 +75,169 @@
 			<if test="maxSalary != null">
 				<![CDATA[ and SALARY <= #{maxSalary} ]]>
 			</if>
-			<!-- if test="minSalary != null and maxSalary != null">
-				and SALARY BETWEEN #{minSalary} AND #{maxSalary}
-			</if -->
+			<!-- if test="minSalary != null and maxSalary != null"> and SALARY BETWEEN 
+				#{minSalary} AND #{maxSalary} </if -->
 		</where>
+
 	</select>
-	
-<!-- 프로시저를 이용한 등록 -->
+
+	<!-- 프로시저를 이용한 등록 -->
 	<insert id="insertEmpProc" statementType="CALLABLE">
 		{call INS_EMP(
-			#{lastName}, #{email}, #{jobId},
-			#{msg, mode=OUT, jdbcType=VARCHAR, javaType=string},
-			#{employeeId, mode=OUT, jdbcType=VARCHAR, javaType=string}
+		#{lastName}, #{email}, #{jobId},
+		#{msg, mode=OUT, jdbcType=VARCHAR, javaType=string},
+		#{employeeId, mode=OUT, jdbcType=VARCHAR, javaType=string}
 		)}
 	</insert>
-	
-<!--  등록 insert   -->
+
+	<!-- 등록 insert -->
 	<insert id="insertEmp" parameterType="emp">
-		<selectKey order="BEFORE"
-				keyProperty="employeeId"
-				resultType="string">
-<!-- keyProperty : select 해서 얻은 max(employee_id)+1 값을 employeeId에 담아주는것
-이때 resultType은 담고자 하는 값(keyProperty)의 타입임 -->
-<!-- employee_id 가 null 값일때를 대비해서 nvl 쓰는데 왜 오류나지 .. SELECT NVL(MAX(EMPLOYEE_ID),0)+1 -->
+		<selectKey order="BEFORE" keyProperty="employeeId"
+			resultType="string">
+			<!-- keyProperty : select 해서 얻은 max(employee_id)+1 값을 employeeId에 담아주는것 
+				이때 resultType은 담고자 하는 값(keyProperty)의 타입임 -->
+			<!-- employee_id 가 null 값일때를 대비해서 nvl 쓰는데 왜 오류나지 .. SELECT NVL(MAX(EMPLOYEE_ID),0)+1 -->
 			SELECT MAX(EMPLOYEE_ID)+1
 			FROM EMPLOYEES
 		</selectKey>
-		INSERT INTO EMPLOYEES (	employee_id, 
-								first_name, 
-								last_name,
-								email,
-								hire_date,
-								job_id
-								)
-	 	                VALUES(
-	 	               			#{employeeId},
-	 	               			#{firstName},
-	 	               			#{lastName},
-	 	               			#{email},
-	 	               			#{hireDate},
-	 	               			#{jobId})
+		INSERT INTO EMPLOYEES ( employee_id,
+		first_name,
+		last_name,
+		email,
+		hire_date,
+		job_id
+		)
+		VALUES(
+		#{employeeId},
+		#{firstName},
+		#{lastName},
+		#{email},
+		#{hireDate},
+		#{jobId})
 	</insert>
-	
-<!-- 단건삭제 -->	
+
+	<!-- 단건삭제 -->
 	<delete id="deleteEmp">
 		DELETE EMPLOYEES
 		WHERE EMPLOYEE_ID = ${employeeId}
 	</delete>
-	
-<!-- 선택 다건삭제 delete -->
+
+	<!-- 선택 다건삭제 delete -->
 	<delete id="deleteMultiEmp">
-	<!-- 리스트로 받아온 값들을 in절에 넣어야 함. 그걸 forEach로 만들것 -->
+		<!-- 리스트로 받아온 값들을 in절에 넣어야 함. 그걸 forEach로 만들것 -->
 		DELETE EMPLOYEES
 		WHERE EMPLOYEE_ID IN
-		<foreach collection="list" item="id"
-			open="(" close=")" separator=",">
-<!-- 컬렉션(list) 갯수만큼 포문 돌거고, 아이템을 뭐라고..??
-	  그리고 값을 출력할때마다 ,로 나눠준다-->
+		<foreach collection="list" item="id" open="(" close=")"
+			separator=",">
+			<!-- 컬렉션(list) 갯수만큼 포문 돌거고, 아이템을 뭐라고..?? 그리고 값을 출력할때마다 ,로 나눠준다 -->
 			#{id}
 		</foreach>
 	</delete>
+
+	<!-- <if test="firstName != null"> and upper(first_name) like '%' || upper(#{firstName}) 
+		|| '%' </if> <if test="departmentId != null"> and department_id = #{departmentId} 
+		</if> <if test="salary != null and salary != '' "> <![CDATA[ AND SALARY < 
+		#{salary}]]> </if> -->
+
+	<update id="updateAuthorIfNecessary">
+		update Author
+		<set>
+			<if test="username != null">username=#{username},</if>
+			<if test="password != null">password=#{password},</if>
+			<if test="email != null">email=#{email},</if>
+			<if test="bio != null">bio=#{bio}</if>
+		</set>
+		where id=#{id}
+	</update>
+
+
+	<!-- <insert id="insertEmp" parameterType="emp"> INSERT INTO EMPLOYEES ( 
+		employee_id, first_name, last_name, email, hire_date, job_id ) VALUES( #{employeeId}, 
+		#{firstName}, #{lastName}, #{email}, #{hireDate}, #{jobId}) </insert> -->
+	<delete id="deleteEmp">
+		DELETE EMPLOYEES
+		WHERE EMPLOYEE_ID = #{employeeID}
+	</delete>
+
+	<insert id="insertEmp" parameterType="emp">
+		<selectKey order="BEFORE" keyProperty="employeeId"
+			resultType="string">
+			SELECT MAX(EMPLOYEE_ID)+1
+			FROM EMPLOYEES
+		</selectKey>
+		INSERT INTO EMPLOYEES (
+		employee_id,
+		first_name,
+		last_name,
+		email,
+		hire_date,
+		job_id
+		)
+		VALUES(
+		#{employeeId},
+		#{firstName},
+		#{lastName},
+		#{email},
+		#{hireDate},
+		#{jobId})
+	</insert>
+
+	<!-- out?왜쓰는거데 그러면 -->
+	<insert id="insertEmpProc" statementType="CALLABLE">
+		{call INS_EMP(
+		#{lastName},
+		#{email},
+		#{jobId},
+		#{msg, mode=OUT, jdbcType=VARCHAR,
+		javaType=string},
+		#{employeeId, mode=OUT, jdbcType=VARCHAR,
+		javaType=string}
+
+		)}
+	</insert>
+
+	<select id="getCount" resultType="int">
+		SELECT COUNT(*) FROM EMPLOYEES
+	</select>
+
+	<!-- 부서별 사원 수 부서번호, 부서명, 사원수 -->
+	<select id="getStatDept" resultType="map">
+		<!-- 부서번호, 부서명, 사원수를 vo에 담기 귀찮으면 map을 사용할 수 있음 -->
+		SELECT E.DEPARTMENT_ID "deptId",
+		D.DEPARTMENT_NAME "deptName",
+		COUNT(*)
+		"cnt"
+		<!-- COUNT(*) OVER() as CNT -->
+		FROM EMPLOYEES E, DEPARTMENTS D
+		WHERE E.DEPARTMENT_ID = D.DEPARTMENT_ID
+		GROUP BY E.DEPARTMENT_ID,
+		D.DEPARTMENT_NAME
+	</select>
+
+	<select id="jobSelect" resultType="co.company.spring.dao.Job">
+		SELECT JOB_ID, JOB_TITLE
+		FROM JOBS
+		ORDER BY JOB_ID
+	</select>
+
+	<select id="departmentSelect"
+		resultType="co.company.spring.dao.Department">
+		SELECT DISTINCT DEPARTMENT_ID, DEPARTMENT_NAME ||' '||
+		DEPARTMENT_ID AS DEPARTMENT_NAME
+		FROM DEPARTMENTS
+		ORDER BY DEPARTMENT_ID
+	</select>
+
+	<!-- 수정 update -->
+	<update id="updateEmp"><!-- update는resultType이 없음 -->
+		UPDATE EMPLOYEES
+		<set>
+			<if test="firstName != null">FIRST_NAME = #{firstName},</if>
+			<if test="lastName != null">LAST_NAME = #{lastName},</if>
+			<if test="email != null">EMAIL = #{email},</if>
+			<if test="jobId != null">JOB_ID = #{jobId}</if>
+		</set>
+		WHERE employee_id = #{employeeId}
+	</update>
+
 </mapper>

@@ -30,9 +30,16 @@ public class DBConfiguration {
 		return db;
 	}
 	
-	// 트랜잭션 매니저 등록
-	@Bean
-	public DataSourceTransactionManager transactionManager() {
-		return new DataSourceTransactionManager(dataSource());
-	}
+	// 트랜잭션 매니저 등록	 
+    @Bean
+    public DataSourceTransactionManager transactionManager() { // 데이터 소스 생성할때
+        return new DataSourceTransactionManager(dataSource()); // 생성자에 필요한 __를 넣어준다
+    }
+  
+ 
+								 
+    @Bean
+    public JdbcTemplate jdbcManager() {
+    	return new JdbcTemplate(dataSource());
+    }
 }

@@ -132,5 +132,15 @@
          FROM DEPARTMENTS
          ORDER BY DEPARTMENT_ID
    </select>
+   
+	 <!--  사원수정  -->
+   <update id ="updateEmp"> <!-- update는resultType이 없음 -->
+      UPDATE EMPLOYEES
+      <set>
+         <if test="lastName != null"> last_name= #{lastName} </if>
+         <if test="salary != null"  > salary= #{salary}      </if>
+      </set>
+      where EMPLOYEE_ID=#{employeeId}
+   </update>
 
 </mapper>
